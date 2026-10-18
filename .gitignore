@@ -1,0 +1,17 @@
+.github/workflows/update-profile-art.yml
+scripts/requirements.txt
+scripts/fetch_contributions.py
+scripts/generate_streak_svg.py
+scripts/render_stats_svg.py
+assets/avatar.png
+assets/avatar.svg
+data/contributions.json
+contrib-heatmap.svg
+stats.svg
+__pycache__/
+*.pyc
+*.pyo
+source-photo-*.jpg
+models/*.caffemodel
+models/*.prototxt
+*.png
