@@ -1,12 +1,3 @@
-- 👋 Hi, I’m @developer-mohanaditya
-- 👀 I’m interested in Machine Learning, Artificial Intelligence, Computer Vision, Programming, Electronics, Cyber Security, Python, Web Technologies, Space, Graphics Designing, Photogrpahy, Paradox, Humour, Emotions and etc...
-- 🌱 I’m currently learning Electronics and Communications, ML & AI and more...
-- 💞️ I’m looking to collaborate on other developers of electronics, ML & AI, Web Technologies, Cyber Security etc...
-- 📫 Reach me by contacting @ ...
--      Work Email: developer.mohanaditya@gmail.com
--      Personal Email: talkwithsma@gmail.com
--      Work Contact: +91 8978907980
-<!---
-developer-mohanaditya/developer-mohanaditya is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+# Developer Profile
+
+TODO: replace with final README.
