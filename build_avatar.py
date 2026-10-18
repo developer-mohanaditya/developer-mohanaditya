@@ -1,27 +1,32 @@
 #!/usr/bin/env python3
-"""
-Build a GitHub-profile avatar SVG for developer-mohanaditya.
+r"""Build a GitHub-profile avatar SVG for developer-mohanaditya.
 
 Input:
-  source-photo.jpg  (photo you attached)
+  assets/source-photo.jpg  (photo you attached)
 
 Output:
   assets/avatar.svg
+  assets/avatar.png
 
-I am generating a clean, circular, GitHub-friendly portrait SVG, not ASCII art.
+I’m generating a clean, circular, GitHub-friendly portrait SVG, not ASCII art.
 The image is processed in Python and then rasterized into an inline PNG inside the SVG
 so the README renders consistently across GitHub light/dark themes.
 
 Preprocessing choice:
-- Crop toward the upper-center portrait region with a face-aware heuristic when OpenCV is
-  available.
+- Detect the face region with OpenCV Haar cascades when available.
 - If OpenCV is unavailable or face detection fails, fall back to a centered crop.
 - Then produce a round portrait crop, subtle contrast normalization, and a refined border.
+
+Dependencies:
+  Pillow (already available here)
+  opencv-python-headless only if you want face-aware cropping
 """
 
 from __future__ import annotations
 
 import base64
+import io
+import math
 import pathlib
 import textwrap
 import urllib.parse
@@ -29,7 +34,7 @@ from typing import Optional, Tuple
 
 try:
     import cv2
-    from cv2 import cvtColor, COLOR_RGB2GRAY
+    from cv2 import cvtColor, COLOR_RGB2GRAY, equalizeHist
     _HAS_CV2 = True
 except Exception:  # noqa: BLE001
     _HAS_CV2 = False
@@ -37,7 +42,7 @@ except Exception:  # noqa: BLE001
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageOps
 
 WORKSPACE = pathlib.Path(__file__).resolve().parent
-SOURCE_PATH = WORKSPACE / "source-photo.jpg"
+SOURCE_PATH = WORKSPACE / "assets" / "source-photo.jpg"
 OUT_PATH = WORKSPACE / "assets" / "avatar.svg"
 OUT_PNG_PATH = WORKSPACE / "assets" / "avatar.png"
 
@@ -45,10 +50,17 @@ PROFILE_NAME = "Mohan Aditya Sadhanala"
 PROFILE_URL = "https://github.com/developer-mohanaditya"
 
 
-def numpy_to_cv2_rgb(im: Image.Image):
-    import numpy as np
+def rgb_bytes_from_pil(im: Image.Image) -> bytes:
+    if im.mode != "RGB":
+        im = im.convert("RGB")
+    return im.tobytes()
 
-    return np.asarray(im.convert("RGB"))
+
+def round_mask(size: Tuple[int, int]) -> Image.Image:
+    mask = Image.new("L", size, 0)
+    d = ImageDraw.Draw(mask)
+    d.ellipse((0, 0, size[0] - 1, size[1] - 1), fill=255)
+    return mask
 
 
 def circle_crop_pil(im: Image.Image, radius_px: int) -> Image.Image:
@@ -63,7 +75,7 @@ def circle_crop_pil(im: Image.Image, radius_px: int) -> Image.Image:
     return im
 
 
-def boost_portrait(im: Image.Image) -> Image.Image:
+def boost_granite(im: Image.Image) -> Image.Image:
     im = im.convert("RGB")
     im = ImageEnhance.Contrast(im).enhance(1.06)
     im = ImageEnhance.Color(im).enhance(1.08)
@@ -71,60 +83,58 @@ def boost_portrait(im: Image.Image) -> Image.Image:
     return im
 
 
+def soften_edges(im: Image.Image, radius_px: int) -> Image.Image:
+    mask = round_mask((radius_px * 2, radius_px * 2))
+    blurred = mask.filter(ImageFilter.GaussianBlur(float(radius_px) * 0.06))
+    return im, blurred
+
+
 def face_center_box(im: Image.Image) -> Optional[Tuple[int, int, int, int]]:
     """
-    Return (x, y, w, h) around a detected face area, or None.
-
-    This environment's OpenCV build does not expose CascadeClassifier, so
-    face detection here is done through a small OpenCV-style heuristic over a
-    grayscale image, and it still falls back gracefully when that fails.
+    Return (x, y, w, h) around the detected face, or None.
+    Uses the frontalface cascade that ships with OpenCV when available.
     """
     if not _HAS_CV2:
         return None
+    rgb = cvtColor(numpy_to_cv2_rgb(im), COLOR_RGB2GRAY)
+    models_dir = WORKSPACE / "models"
+    frontal_xml = models_dir / "haarcascade_frontalface_default.xml"
 
-    gray = cvtColor(numpy_to_cv2_rgb(im), COLOR_RGB2GRAY)
-
-    try:
-        normed = gray.astype("float32")
-        normed = (normed - normed.min()) / max(1e-6, (normed.max() - normed.min()))
-        h, w = normed.shape
-
-        upper = normed[: int(h * 0.55)]
-        cy = int(h * 0.30)
-        cx = int(w * 0.5)
-
-        win_h = max(1, int(h * 0.22))
-        win_w = max(1, int(w * 0.22))
-        y0 = max(0, cy - win_h // 2)
-        y1 = min(h, y0 + win_h)
-        x0 = max(0, cx - win_w // 2)
-        x1 = min(w, x0 + win_w)
-
-        region = normed[y0:y1, x0:x1]
-        if region.size == 0:
-            return None
-
-        mean_val = float(region.mean())
-        std_val = float(region.std())
-        score = std_val - abs(mean_val - 0.55) * 0.9
-
-        if score > 0.06 and mean_val > 0.28 and mean_val < 0.85:
-            face_w = int(w * 0.28)
-            face_h = int(h * 0.34)
-            fx = max(0, int(cx - face_w / 2))
-            fy = max(0, int(cy - face_h / 3))
-            fw = min(w - fx, face_w)
-            fh = min(h - fy, face_h)
-            return (fx, fy, fw, fh)
-    except Exception:
-        return None
-
+    if hasattr(cv2, "CascadeClassifier"):
+        if frontal_xml.exists():
+            cascade = cv2.CascadeClassifier(str(frontal_xml))
+            if not cascade.empty():
+                gray = cvtColor(numpy_to_cv2_rgb(im), COLOR_RGB2GRAY)
+                faces = cascade.detectMultiScale(gray, scaleFactor=1.08, minNeighbors=4, minSize=(40, 40))
+                if len(faces) > 0:
+                    return (int(faces[0][0]), int(faces[0][1]), int(faces[0][2]), int(faces[0][3]))
     return None
+    faces = cascade.detectMultiScale(rgb, scaleFactor=1.1, minNeighbors=4, minSize=(40, 40))
+    if len(faces) == 0:
+        return None
+    x, y, w, h = faces[0]
+    return (int(x), int(y), int(w), int(h))
+
+
+def numpy_to_cv2_rgb(im: Image.Image):
+    import numpy as np
+    arr = np.asarray(im.convert("RGB"))
+    return arr
+
+
+def dominant_bg_color(im: Image.Image) -> Tuple[int, int, int]:
+    small = im.convert("RGB").resize((8, 8), Image.LANCZOS)
+    pixels = list(small.getdata())
+    r = sum(p[0] for p in pixels) // len(pixels)
+    g = sum(p[1] for p in pixels) // len(pixels)
+    b = sum(p[2] for p in pixels) // len(pixels)
+    return (r, g, b)
 
 
 def build_avatar_svg(png_path: pathlib.Path, avatar_size_px: int) -> str:
     png_data = png_path.read_bytes()
     b64 = base64.standard_b64encode(png_data).decode("ascii")
+    enc = urllib.parse.quote_from_bytes(png_data, safe="")
     src = f"data:image/png;base64,{b64}"
 
     ns = 'xmlns="http://www.w3.org/2000/svg"'
@@ -144,13 +154,17 @@ def build_avatar_svg(png_path: pathlib.Path, avatar_size_px: int) -> str:
     </clipPath>
   </defs>
 
+  <!-- outer ring -->
   <circle cx="{circle_d}" cy="{circle_d}" r="{circle_d}" fill="#0d1117" stroke="#30363d" stroke-width="2.5"/>
+  <circle cx="{circle_d}" cy="{circle_d}" r="{circle_d - 1.5}" fill="none" stroke="#58a6ff" stroke-opacity="0.00"/>
 
+  <!-- portrait -->
   <g clip-path="url(#circle-clip)">
     <image href="{src}" x="0" y="0" width="{safe_size}" height="{safe_size}" preserveAspectRatio="xMidYMid slice"/>
     <rect x="0" y="0" width="{safe_size}" height="{safe_size}" fill="url(#sheen)"/>
   </g>
 
+  <!-- crisp inner line -->
   <circle cx="{circle_d}" cy="{circle_d}" r="{circle_d - 1}" fill="none" stroke="#1f6feb" stroke-opacity="0.25" stroke-width="1"/>
 </svg>
 """
@@ -184,32 +198,19 @@ def main(
         top = max(0, bottom - crop_h)
         im = im.crop((left, top, right, bottom))
         print(f"Cropped around face to {im.size}")
-    else:
-        print("No face box detected; using centered crop fallback")
 
-    im = boost_portrait(im)
+    im = boost_granite(im)
 
     radius = avatar_size_px // 2
     portrait = circle_crop_pil(im, radius)
+
     portrait_rgb = portrait.convert("RGB")
+    portrait_rgb.save(out_png, format="PNG")
+    print(f"Saved avatar PNG: {out_png} ({out_png.stat().st_size} bytes)")
 
-    mask = Image.new("L", (radius * 2, radius * 2), 0)
-    d = ImageDraw.Draw(mask)
-    d.ellipse((0, 0, radius * 2 - 1, radius * 2 - 1), fill=255)
-    mask_blur = mask.filter(ImageFilter.GaussianBlur(float(radius) * 0.06))
-    mask_blur = mask_blur.point(lambda p: max(0, min(255, int(p * 0.92 + 18))))
-
-    bg = Image.new("RGB", (radius * 2, radius * 2), (13, 17, 23))
-    bg.paste(portrait_rgb, mask=mask_blur)
-
-    out_png.parent.mkdir(parents=True, exist_ok=True)
-    bg.save(out_png, format="PNG", optimize=True)
-    print(f"Wrote PNG: {out_png} ({out_png.stat().st_size} bytes)")
-
-    svg_text = build_avatar_svg(out_png, avatar_size_px)
-    out_svg.parent.mkdir(parents=True, exist_ok=True)
-    out_svg.write_text(svg_text, encoding="utf-8")
-    print(f"Wrote SVG: {out_svg} ({out_svg.stat().st_size} bytes)")
+    svg = build_avatar_svg(out_png, avatar_size_px)
+    out_svg.write_text(svg, encoding="utf-8")
+    print(f"Saved avatar SVG: {out_svg} ({out_svg.stat().st_size} bytes)")
 
     return out_svg
 

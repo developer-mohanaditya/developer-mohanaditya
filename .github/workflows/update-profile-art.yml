@@ -1,9 +1,11 @@
 name: Update profile art
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: [refresh-profile-art]
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 11 * * *"
+      timezone: "Asia/Kolkata"
   push:
     branches:
       - main
