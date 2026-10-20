@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Render stats card beside ascii-art.gif. Canvas 840x1125 (3:4) so both README panels match at equal widths."""
+"""Render the streak / numbers card from data/contributions.json (written daily by fetch_contributions.py) as a terminal-window SVG that sits beside ascii-art.gif. The canvas matches the portrait ratio (840 x 1125, i.e. 640:857) so the two panels line up at equal heights when the README shows them side by side at equal widths."""
 import datetime
 import json
 import os
 import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "data", "contributions.json")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "stats.svg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "stats.svg")
 BG = "#0d1117"
 BG2 = "#111722"
 TILE = "#161b22"
@@ -46,12 +46,7 @@ tiles = [("current streak", cur["length"], " days", span(cur), GREEN), ("longest
 def fmt(v, like):
     return f"{v:,.1f}" if isinstance(like, float) else f"{int(round(v)):,}"
 
-parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">']
-parts.append('<style>' + f'.t{{opacity:0;animation:in {SLIDE_DUR}s ease-out both}}' + '@keyframes in{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}' + f'.b{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);animation:grow {BAR_DUR}s ease-out both}}' + '@keyframes grow{to{transform:scaleY(1)}}' + '@media (prefers-reduced-motion: reduce){.t,.b{opacity:1!important;transform:none!important;animation:none!important}}' + '</style>')
-parts.append(f'<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{BG2}"/><stop offset="1" stop-color="{BG}"/></linearGradient></defs>')
-parts.append(f'<rect width="{W}" height="{H}" rx="12" fill="url(#bg)"/>')
-parts.append(f'<rect x="0.5" y="0.5" width="{W-1}" height="{H-1}" rx="12" fill="none" stroke="{FRAME}"/>')
-parts.append(f'<line x1="0" y1="{TITLEBAR_H}" x2="{W}" y2="{TITLEBAR_H}" stroke="{FRAME}"/>')
+parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">', '<style>' + f'.t{{opacity:0;animation:in {SLIDE_DUR}s ease-out both}}' + '@keyframes in{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}' + f'.b{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);animation:grow {BAR_DUR}s ease-out both}}' + '@keyframes grow{to{transform:scaleY(1)}}' + '@media (prefers-reduced-motion: reduce){.t,.b{opacity:1!important;transform:none!important;animation:none!important}}' + '</style>', f'<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{BG2}"/><stop offset="1" stop-color="{BG}"/></linearGradient></defs>', f'<rect width="{W}" height="{H}" rx="12" fill="url(#bg)"/>', f'<rect x="0.5" y="0.5" width="{W-1}" height="{H-1}" rx="12" fill="none" stroke="{FRAME}"/>', f'<line x1="0" y1="{TITLEBAR_H}" x2="{W}" y2="{TITLEBAR_H}" stroke="{FRAME}"/>']
 for i, dot in enumerate(["#ff5f56", "#ffbd2e", "#27c93f"]):
     parts.append(f'<circle cx="{PAD + i*16}" cy="{TITLEBAR_H/2}" r="5" fill="{dot}"/>')
 parts.append(f'<text x="{W/2}" y="{TITLEBAR_H/2 + 4}" fill="{MUTED}" font-size="12" text-anchor="middle">mohanaditya@github: ~$ ./stats.sh</text>')
