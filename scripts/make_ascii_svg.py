@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Portrait to ASCII SVG - preserves aspect (3:4)."""
+"""Convert a portrait photo into terminal ASCII-art SVG, types itself then holds.
+Monochrome single-color style. Preserves source aspect ratio (e.g. 3:4 portrait)
+instead of squashing to a square. Default input: assets/source-photo.jpg."""
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 from PIL.ImageOps import exif_transpose
-import html, os, sys
+import html
+import os
+import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "mohan-ascii.svg")
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "source-photo.jpg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "mohan-ascii.svg")
 COLS = int(os.environ.get("COLS", 180))
 ART_W_TARGET = 800
 CELL_W = ART_W_TARGET / COLS
@@ -14,6 +18,7 @@ RAMP = " .`:-=+*cs#%@"
 CONTRAST = float(os.environ.get("CONTRAST", 1.05))
 BRIGHTNESS = float(os.environ.get("BRIGHTNESS", 1.0))
 GAMMA = float(os.environ.get("GAMMA", 1.18))
+SHARPEN = os.environ.get("SHARPEN", "") not in ("", "0", "false", "False")
 WHITE_FLOOR = float(os.environ.get("WHITE_FLOOR", 0.80))
 PAD = 20
 TITLEBAR_H = 30
@@ -40,6 +45,8 @@ CANVAS_W = ART_W + PAD * 2
 CANVAS_H = TITLEBAR_H + ART_H + STATUS_H + PAD
 ROW_DUR = 5.8 / ROWS
 STAGGER = ROW_DUR
+if SHARPEN:
+    im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=140, threshold=2))
 im = ImageEnhance.Brightness(im).enhance(BRIGHTNESS)
 im = ImageEnhance.Contrast(im).enhance(CONTRAST)
 im = im.resize((COLS, ROWS), Image.LANCZOS)
