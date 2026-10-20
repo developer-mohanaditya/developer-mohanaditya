@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Convert a portrait photo into terminal ASCII-art SVG, types itself then holds.
 Monochrome single-color style. Preserves source aspect ratio (e.g. 3:4 portrait)
-instead of squashing to a square. Default input: assets/source-photo.jpg."""
+instead of squashing to a square. Default input: source-photo.jpg (repo root)."""
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 from PIL.ImageOps import exif_transpose
 import html
 import os
 import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "source-photo.jpg")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "mohan-ascii.svg")
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "mohan-ascii.svg")
 COLS = int(os.environ.get("COLS", 180))
 ART_W_TARGET = 800
 CELL_W = ART_W_TARGET / COLS
@@ -87,7 +87,7 @@ for ry, line in enumerate(rows_txt):
         continue
     parts.append(f'<clipPath id="r{ry}"><rect x="{PAD}" y="{row_y:.1f}" height="{CELL_H}" width="0"><animate attributeName="width" from="0" to="{ART_W}" begin="{delay:.3f}s" dur="{ROW_DUR:.2f}s" fill="freeze"/></rect></clipPath>')
     parts.append(f'<g clip-path="url(#r{ry})">{text}</g>')
-    parts.append(f'<rect y="{row_y+1:.1f}" width="{CELL_W}" height="{CELL_H-2}" fill="{CURSOR}" opacity="0"><animate attributeName="x" from="{PAD}" to="{PAD+ART_W}" begin="{delay:.3f}s" dur="{ROW_DUR:.2f}s" fill="freeze"/><set attributeName="opacity" to="0.85" begin="{delay:.3f}s"/><set attributeName="opacity" to="0" begin="{delay+ROW_DUR:.3f}s"/></rect>')
+    parts.append(f'<rect y="{row_y+1:.1f}" width="{CELL_W}" height="{CELL_H-2}" fill="{CURSOR}" opacity="0"><animate attributeName="x" from="{PAD}" to="{PAD+ART_W}" begin="{delay:.3f}s" dur="{ROW_DUR:.2f}s" fill="freeze"/><set attributeName="opacity" to="0.85" begin="{delay:.3f}s"/><set attributeName="opacity" to="0" begin="{delay+ROW_DUR:.3f}s"/></set>')
 status_line_y = TITLEBAR_H + ART_H + PAD * 0.35
 status_y = status_line_y + 19
 parts.append(f'<line x1="0" y1="{status_line_y:.1f}" x2="{CANVAS_W}" y2="{status_line_y:.1f}" stroke="{FRAME}"/>')
