@@ -5,7 +5,7 @@
 
 <h3><code>mohanaditya@github ~ $ ./contributions.sh</code></h3>
 
-<img src="./contrib-heatmap.svg" width="860" alt="Mohan's GitHub contribution graph — auto-refreshed daily" />
+<img src="./assets/contrib-heatmap.svg" width="860" alt="Mohan's GitHub contribution graph -- auto-refreshed daily" />
 
 <br>
 <br>
