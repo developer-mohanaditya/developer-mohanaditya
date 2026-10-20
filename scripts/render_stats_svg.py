@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Render the streak / numbers card from data/contributions.json (written daily by fetch_contributions.py) as a terminal-window SVG that sits beside ascii-art.gif. The canvas matches the portrait ratio (840 x 1125, i.e. 640:857) so the two panels line up at equal heights when the README shows them side by side at equal widths."""
+"""Render the streak / numbers card from data/contributions.json (written daily by fetch_contributions.py) as a terminal-window SVG that sits beside ascii-art.png. The canvas is 840 x 1125 (3:4) so the two panels match at equal display widths."""
 import datetime
 import json
 import os
 import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "data", "contributions.json")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "stats.svg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "stats.svg")
 BG = "#0d1117"
 BG2 = "#111722"
 TILE = "#161b22"
