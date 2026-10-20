@@ -12,7 +12,7 @@
 
 <!-- ascii portrait (left) + streak/numbers card (right). both svgs are
      840x880 so equal widths give equal heights.
-     portrait: python scripts/prep_photo.py assets/source-photo.jpg && python scripts/make_ascii_svg.py
+     portrait: python scripts/prep_photo.py source-photo.jpg && python scripts/make_ascii_svg.py
      stats:    python scripts/render_stats_svg.py (same daily workflow) -->
 
 <h3><code>mohanaditya@github ~ $ whoami</code></h3>
