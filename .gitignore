@@ -1,11 +1,6 @@
 __pycache__/
 *.pyc
 *.pyo
-source-photo-*.jpg
+source-prepped.png
 models/*.caffemodel
 models/*.prototxt
-data/*.json
-contrib-heatmap.svg
-stats.svg
-*.png
-!.github/workflows/update-profile-art.yml
