@@ -31,9 +31,9 @@
 
 <p><b>Fullstack Developer · AI Builder</b></p>
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-developer--mohanaditya-0d1117?style=for-the-badge&logo=vercel&logoColor=white)](https://github.com/developer-mohanaditya)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-developer--mohanaditya-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/developer-mohanaditya)
 [![GitHub](https://img.shields.io/badge/GitHub-developer--mohanaditya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/developer-mohanaditya)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-mohan--aditya--sadhanala-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohan-aditya-sadhanala)
+[![X](https://img.shields.io/badge/X-@smohanaditya-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/smohanaditya)
 [![Live Terminal](https://img.shields.io/badge/⚡_Live_Terminal-developer--mohanaditya.github.io-22d3ee?style=for-the-badge&logo=gnometerminal&logoColor=black)](https://developer-mohanaditya.github.io)
 
 <br>
