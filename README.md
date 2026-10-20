@@ -5,22 +5,19 @@
 
 <h3><code>mohanaditya@github ~ $ ./contributions.sh</code></h3>
 
-<img src="./contrib-heatmap.svg" width="860" alt="Mohan's GitHub contribution graph — auto-refreshed daily" />
+<img src="./contrib-heatmap.svg" width="860" alt="Mohan's GitHub contribution graph -- auto-refreshed daily" />
 
 <br>
 <br>
 
-<!-- ascii portrait (left) + streak/numbers card (right). both svgs are
-     840x880 so equal widths give equal heights.
-     portrait: python scripts/prep_photo.py source-photo.jpg && python scripts/make_ascii_svg.py
-     stats:    python scripts/render_stats_svg.py (same daily workflow) -->
+<!-- ascii portrait (left) + streak/numbers card (right). portrait is 3:4 aspect-preserved, stats is 840x880. -->
 
 <h3><code>mohanaditya@github ~ $ whoami</code></h3>
 
 <table>
 <tr>
-<td valign="top"><img src="./mohan-ascii.svg" width="420" alt="Mohan Aditya — ASCII portrait" /></td>
-<td valign="top"><img src="./stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
+<td valign="top"><img src="./mohan-ascii.svg" width="420" alt="Mohan Aditya -- ASCII portrait" /></td>
+<td valign="top"><img src="./stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats -- auto-refreshed daily" /></td>
 </tr>
 </table>
 
@@ -34,7 +31,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-developer--mohanaditya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/developer-mohanaditya)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-mohan--aditya--sadhanala-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohan-aditya-sadhanala)
 [![X](https://img.shields.io/badge/X-@smohanaditya-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/smohanaditya)
-[![Live Terminal](https://img.shields.io/badge/⚡_Live_Terminal-developer--mohanaditya.github.io-22d3ee?style=for-the-badge&logo=gnometerminal&logoColor=black)](https://developer-mohanaditya.github.io)
+[![Live Terminal](https://img.shields.io/badge/Live_Terminal-developer--mohanaditya.github.io-22d3ee?style=for-the-badge&logo=gnometerminal&logoColor=black)](https://developer-mohanaditya.github.io)
 
 <br>
 
