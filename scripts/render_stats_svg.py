@@ -1,75 +1,100 @@
 #!/usr/bin/env python3
-"""
-Render a contribution stats card SVG from data/contributions.json.
-
-Output is written to stats.svg next to this script by default.
-"""
-
-from __future__ import annotations
-
-import pathlib
-import sys
-from datetime import date
-
+"""Render the streak / numbers card from data/contributions.json (written daily by fetch_contributions.py) as a terminal-window SVG that sits beside mohan-ascii.svg. The canvas is the same size as the portrait (840 x 880) so the two panels line up when the README shows them side by side at equal widths."""
+import datetime
 import json
+import os
+import sys
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "data", "contributions.json")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "stats.svg")
+BG = "#0d1117"
+BG2 = "#111722"
+TILE = "#161b22"
+FRAME = "#30363d"
+MUTED = "#7d8590"
+INK = "#e6edf3"
+GREEN = "#39d353"
+BAR = "#26a641"
+W, H = 840, 880
+PAD = 20
+TITLEBAR_H = 30
+COLS, ROWS = 2, 3
+GAP = 16
+TILE_W = (W - PAD * 2 - GAP * (COLS - 1)) / COLS
+TILE_H = 150
+TILES_TOP = TITLEBAR_H + PAD + 4
+CHART_TOP = TILES_TOP + ROWS * TILE_H + (ROWS - 1) * GAP + GAP
+TILE_STAGGER = 0.15
+SLIDE_DUR = 0.45
+COUNT_DUR = 1.2
+FRAMES = 16
+BAR_START = TILE_STAGGER * COLS * ROWS + 0.4
+BAR_STAGGER = 0.06
+BAR_DUR = 0.6
 
-DATA_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "contributions.json"
-OUT_PATH = pathlib.Path(__file__).resolve().parent.parent / "stats.svg"
+def short(d):
+    return datetime.date.fromisoformat(d).strftime("%b %-d")
 
+def span(s):
+    return f'{short(s["start"])} - {short(s["end"])}' if s["length"] else "-"
 
-def load_data() -> dict[str, Any]:
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Missing {DATA_PATH}")
-    return json.loads(DATA_PATH.read_text(encoding="utf-8"))
+data = json.load(open(SRC))
+cur, lng, best = data["current_streak"], data["longest_streak"], data["best_day"]
+n_days = len(data["days"])
+tiles = [("current streak", cur["length"], " days", span(cur), GREEN), ("longest streak", lng["length"], " days", span(lng), INK), ("contributions", data["total_contributions"], "", "in the last year", INK), ("active days", data["active_days"], f" / {n_days}", f'{data["active_days"] / n_days:.0%} of the year', INK), ("best day", best["count"], "", short(best["date"]), INK), ("avg / active day", data["avg_per_active_day"], "", "contributions", INK)]
 
+def fmt(v, like):
+    return f"{v:,.1f}" if isinstance(like, float) else f"{int(round(v)):,}"
 
-def svg_text(x: int, y: int, text: str, size: int = 14, fill: str = "#1f2328") -> str:
-    return f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" font-family="Helvetica, Arial, sans-serif">{text}</text>'
-
-
-def render_card(data: dict[str, Any]) -> str:
-    summary = data.get("summary", {})
-    total = summary.get("total", 0)
-    active = summary.get("active_days", 0)
-    current = summary.get("current_streak", 0)
-    longest = summary.get("longest_streak", 0)
-    best = summary.get("best_day", 0)
-    monthly = summary.get("monthly", {})
-
-    tiles = [
-        ("Contributions", f"{total}", "#0e4429"),
-        ("Active Days", f"{active}", "#0e4429"),
-        ("Current Streak", f"{current} days", "#0e4429"),
-        ("Longest Streak", f"{longest} days", "#0e4429"),
-        ("Best Day", f"{best}", "#0e4429"),
-    ]
-
-    tile_w = 120
-    tile_h = 60
-    gap = 10
-    width = len(tiles) * tile_w + (len(tiles) - 1) * gap
-    height = 140
-
-    parts = []
-    parts.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}">')
-    for i, (label, value, accent) in enumerate(tiles):
-        x = i * (tile_w + gap)
-        y = 10
-        parts.append(f'<rect x="{x}" y="{y}" width="{tile_w}" height="{tile_h}" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>')
-        parts.append(svg_text(x + 10, y + 22, label, size=11, fill="#656d76"))
-        parts.append(svg_text(x + 10, y + 44, value, size=18, fill=accent))
-    parts.append(svg_text(10, height - 12, f"Last updated: {summary.get('updated_at', 'unknown')}", size=10, fill="#656d76"))
-    parts.append("</svg>")
-    return "\n".join(parts)
-
-
-def main() -> int:
-    data = load_data()
-    svg = render_card(data)
-    OUT_PATH.write_text(svg, encoding="utf-8")
-    print(f"Wrote {OUT_PATH}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">', '<style>' + f'.t{{opacity:0;animation:in {SLIDE_DUR}s ease-out both}}' + '@keyframes in{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}' + f'.b{{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);animation:grow {BAR_DUR}s ease-out both}}' + '@keyframes grow{to{transform:scaleY(1)}}' + '@media (prefers-reduced-motion: reduce){.t,.b{opacity:1!important;transform:none!important;animation:none!important}}' + '</style>', f'<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{BG2}"/><stop offset="1" stop-color="{BG}"/></linearGradient></defs>', f'<rect width="{W}" height="{H}" rx="12" fill="url(#bg)"/>', f'<rect x="0.5" y="0.5" width="{W-1}" height="{H-1}" rx="12" fill="none" stroke="{FRAME}"/>', f'<line x1="0" y1="{TITLEBAR_H}" x2="{W}" y2="{TITLEBAR_H}" stroke="{FRAME}"/>']
+for i, dot in enumerate(["#ff5f56", "#ffbd2e", "#27c93f"]):
+    parts.append(f'<circle cx="{PAD + i*16}" cy="{TITLEBAR_H/2}" r="5" fill="{dot}"/>')
+parts.append(f'<text x="{W/2}" y="{TITLEBAR_H/2 + 4}" fill="{MUTED}" font-size="12" text-anchor="middle">mohanaditya@github: ~$ ./stats.sh</text>')
+for i, (label, value, suffix, caption, accent) in enumerate(tiles):
+    col, row = i % COLS, i // COLS
+    x = PAD + col * (TILE_W + GAP)
+    y = TILES_TOP + row * (TILE_H + GAP)
+    start = i * TILE_STAGGER
+    count_start = start + SLIDE_DUR * 0.6
+    parts.append(f'<g class="t" style="animation-delay:{start:.2f}s">')
+    parts.append(f'<rect x="{x:.1f}" y="{y}" width="{TILE_W:.1f}" height="{TILE_H}" rx="10" fill="{TILE}" stroke="{FRAME}"/>')
+    parts.append(f'<text x="{x+24:.1f}" y="{y+40}" fill="{MUTED}" font-size="22">$ {label}</text>')
+    num_y = y + 100
+    for k in range(1, FRAMES + 1):
+        p = k / FRAMES
+        v = value * (1 - (1 - p) ** 3)
+        t_on = count_start + COUNT_DUR * (k - 1) / FRAMES
+        t_off = count_start + COUNT_DUR * k / FRAMES
+        anim = f'<set attributeName="opacity" to="1" begin="{t_on:.3f}s"/>'
+        if k < FRAMES:
+            anim += f'<set attributeName="opacity" to="0" begin="{t_off:.3f}s"/>'
+        parts.append(f'<text x="{x+24:.1f}" y="{num_y}" opacity="0" font-size="54" font-weight="700" fill="{accent}">{fmt(v, value)}<tspan font-size="24" font-weight="400" fill="{MUTED}">{suffix}</tspan>{anim}</text>')
+    parts.append(f'<text x="{x+24:.1f}" y="{y+132}" fill="{MUTED}" font-size="20">{caption}</text>')
+    parts.append('</g>')
+monthly = data["monthly"]
+chart_x, chart_w = PAD, W - PAD * 2
+chart_h = H - PAD - CHART_TOP
+parts.append(f'<g class="t" style="animation-delay:{BAR_START - 0.3:.2f}s">')
+parts.append(f'<rect x="{chart_x}" y="{CHART_TOP}" width="{chart_w}" height="{chart_h}" rx="10" fill="{TILE}" stroke="{FRAME}"/>')
+parts.append(f'<text x="{chart_x+24}" y="{CHART_TOP+40}" fill="{MUTED}" font-size="22">$ contributions / month</text>')
+parts.append('</g>')
+plot_top = CHART_TOP + 64
+plot_bot = CHART_TOP + chart_h - 40
+plot_l, plot_r = chart_x + 24, chart_x + chart_w - 24
+slot = (plot_r - plot_l) / len(monthly)
+bar_w = slot * 0.62
+peak = max(m["total"] for m in monthly) or 1
+for i, m in enumerate(monthly):
+    h = max(2, (plot_bot - plot_top) * m["total"] / peak)
+    bx = plot_l + i * slot + (slot - bar_w) / 2
+    fill = GREEN if m["total"] == peak else BAR
+    delay = BAR_START + i * BAR_STAGGER
+    parts.append(f'<rect class="b" x="{bx:.1f}" y="{plot_bot - h:.1f}" width="{bar_w:.1f}" height="{h:.1f}" rx="3" fill="{fill}" style="animation-delay:{delay:.2f}s"/>')
+    mon = datetime.date.fromisoformat(m["month"] + "-01").strftime("%b")[0]
+    parts.append(f'<text x="{bx + bar_w/2:.1f}" y="{plot_bot + 28}" fill="{MUTED}" font-size="18" text-anchor="middle">{mon}</text>')
+    if m["total"] == peak:
+        parts.append(f'<text class="t" style="animation-delay:{delay + BAR_DUR:.2f}s" x="{bx + bar_w/2:.1f}" y="{plot_bot - h - 10:.1f}" fill="{INK}" font-size="18" text-anchor="middle">{peak:,}</text>')
+parts.append('</svg>')
+svg = "".join(parts)
+open(OUT, "w").write(svg)
+print(f"wrote {OUT}: {W} x {H}, {len(svg)//1024} KB")
