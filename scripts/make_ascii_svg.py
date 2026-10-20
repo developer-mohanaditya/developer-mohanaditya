@@ -1,10 +1,10 @@
-"""Convert a portrait photo into terminal ASCII-art SVG, types itself then holds. Monochrome single-color style."""
+"""Convert a portrait photo into terminal ASCII-art SVG, types itself then holds. Monochrome single-color style. Default input: source-photo.jpg (repo root)."""
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 import html
 import os
 import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "source-photo.jpg")
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "mohan-ascii.svg")
 COLS = int(os.environ.get("COLS", 180))
 ART_W_TARGET = 800
