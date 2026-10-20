@@ -1,7 +1,8 @@
 name: Update profile art
 
 # Refreshes the contribution graph + stats card SVGs daily from real data.
-# Generated SVGs are kept under assets/ alongside the contributor media.
+# Generated SVGs land at repo root for stable references; move to a docs/assets
+# folder later when the media rename path is sorted on your side.
 
 "on":
   schedule:
@@ -30,7 +31,7 @@ jobs:
         run: python scripts/fetch_contributions.py
 
       - name: Render animated contribution graph SVG
-        run: python scripts/generate_streak_svg.py developer-mohanaditya assets/contrib-heatmap.svg
+        run: python scripts/generate_streak_svg.py developer-mohanaditya contrib-heatmap.svg
 
       - name: Render streak / numbers card
         run: python scripts/render_stats_svg.py
@@ -39,4 +40,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: refresh contribution graph [skip ci]"
-          file_pattern: "data/contributions.json assets/contrib-heatmap.svg assets/stats.svg"
+          file_pattern: "data/contributions.json contrib-heatmap.svg stats.svg"
