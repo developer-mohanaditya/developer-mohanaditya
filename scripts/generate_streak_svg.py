@@ -1,113 +1,55 @@
 #!/usr/bin/env python3
-"""
-Generate a contribution heatmap SVG from data/contributions.json.
+"""Generate an animated GitHub-streak SVG (squares light up one by one). Works standalone; designed to run in a GitHub Action daily to stay live. Usage: python generate_streak_svg.py [username] [output.svg]"""
+import sys, json, os, datetime, urllib.request
+USER = sys.argv[1] if len(sys.argv) > 1 else "developer-mohanaditya"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "streak.svg"
 
-Usage:
-    python scripts/generate_streak_svg.py <username> contrib-heatmap.svg
-"""
+def get_data(user):
+    snap = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "contributions.json")
+    if os.path.exists(snap):
+        d = json.load(open(snap))
+        if d.get("username", "").lower() == user.lower() and all("level" in x for x in d["days"]):
+            return {"contributions": d["days"], "total": {"lastYear": d["total_contributions"]}}
+    url = f"https://github-contributions-api.jogruber.de/v4/{user}?y=last"
+    try:
+        with urllib.request.urlopen(url, timeout=25) as r:
+            return json.loads(r.read().decode())
+    except Exception as e:
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "contrib.json")
+        if os.path.exists(here):
+            print("API failed (%s); using local contrib.json" % e)
+            return json.load(open(here))
+        raise
 
-from __future__ import annotations
-
-import pathlib
-import sys
-from datetime import date, timedelta
-from typing import Any
-
-try:
-    import numpy as np
-except Exception:  # noqa: BLE001
-    sys.stderr.write("This renderer expects numpy.\n")
-    sys.exit(2)
-
-from PIL import Image, ImageDraw, ImageFont
-
-import json
-
-DATA_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "contributions.json"
-
-COLORS = {
-    0: "#ebedf0",
-    1: "#9be9a8",
-    2: "#40c463",
-    3: "#30a14e",
-    4: "#216e39",
-    5: "#17412c",
-}
-
-
-def load_data() -> dict[str, Any]:
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Missing {DATA_PATH}")
-    return json.loads(DATA_PATH.read_text(encoding="utf-8"))
-
-
-def build_heatmap(data: dict[str, Any], username: str) -> Image.Image:
-    days = data.get("days", [])
-    by_date = {d["date"]: d.get("count", 0) for d in days}
-
-    dates = sorted(by_date.keys())
-    if not dates:
-        raise ValueError("No contribution days available")
-    start = date.fromisoformat(dates[0])
-    end = date.fromisoformat(dates[-1])
-
-    cell = 12
-    cell_gap = 1
-    padding_left = 20
-    padding_top = 20
-    label_w = 40
-    month_h = 16
-
-    width = padding_left + label_w + (cell + cell_gap) * 7 + cell
-    height = padding_top + month_h * 12 + cell * 8 + cell_gap * 7 + 10
-
-    im = Image.new("RGB", (width, height), "#ffffff")
-    d = ImageDraw.Draw(im)
-
-    cur = start
-    col = 0
-    row = 0
-    x0 = padding_left + label_w
-    y0 = padding_top + month_h
-
-    while cur <= end:
-        if cur.weekday() == 0 and cur != start:
-            row += 1
-            col = 0
-            y = y0 + row * (cell + cell_gap)
-            for c in range(7):
-                cx = x0 + c * (cell + cell_gap)
-                val = by_date.get(cur.isoformat(), 0) if cur <= end else 0
-                color = COLORS[min(5, max(0, val))]
-                d.rectangle([cx, y, cx + cell, y + cell], fill=color)
-                cur = cur + timedelta(days=1)
-                col += 1
-            continue
-
-        y = y0 + row * (cell + cell_gap)
-        cx = x0 + col * (cell + cell_gap)
-        val = by_date.get(cur.isoformat(), 0) if cur <= end else 0
-        color = COLORS[min(5, max(0, val))]
-        d.rectangle([cx, y, cx + cell, y + cell], fill=color)
-        cur = cur + timedelta(days=1)
-        col += 1
-
-    return im
-
-
-def main() -> int:
-    if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <username> <output.svg>", file=sys.stderr)
-        return 2
-
-    username = sys.argv[1]
-    out_path = pathlib.Path(sys.argv[2])
-    data = load_data()
-    image = build_heatmap(data, username)
-    out_path.write_text("placeholder", encoding="utf-8")
-    print(f"Generated heatmap at {out_path}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+data = get_data(USER)
+contribs = data["contributions"]
+total = data["total"]["lastYear"]
+CELL, GAP, RAD, LEFT, TOP = 13, 3, 2.5, 34, 24
+COLORS = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
+GRAY = "#7d8590"
+MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+n = len(contribs)
+NW = (n + 6) // 7
+W = LEFT + NW*(CELL+GAP) + 6
+H = TOP + 7*(CELL+GAP) + 22
+REVEAL, DUR = 3.6, 0.55
+maxorder = (NW-1) + 6*0.55
+rects, labels = [], []
+sd = datetime.date.fromisoformat(contribs[0]["date"])
+last_m = None
+for wk in range(NW):
+    d = sd + datetime.timedelta(days=wk*7)
+    if d.month != last_m:
+        last_m = d.month
+        labels.append(f'<text class="lbl" x="{LEFT+wk*(CELL+GAP)}" y="{TOP-8}">{MONTHS[d.month-1]}</text>')
+for name, r in [("Mon",1),("Wed",3),("Fri",5)]:
+    labels.append(f'<text class="lbl" x="2" y="{TOP+r*(CELL+GAP)+CELL-2}">{name}</text>')
+for i, c in enumerate(contribs):
+    wk, row, lvl = i//7, i%7, c["level"]
+    x = LEFT + wk*(CELL+GAP); y = TOP + row*(CELL+GAP)
+    delay = round((wk + row*0.55)/maxorder * REVEAL, 3)
+    cls = "c g" if lvl >= 1 else "c e"
+    rects.append(f'<rect class="{cls}" x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="{RAD}" fill="{COLORS[lvl]}" style="animation-delay:{delay}s"/>')
+svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif"><style>text.lbl {{ fill:{GRAY}; font-size:13px; font-weight:600; }}text.total {{ fill:#e6edf3; font-size:15px; font-weight:700; }}.c {{ transform-box:fill-box; transform-origin:center; opacity:0; animation:pop {DUR}s ease-out both; }}.g {{ animation:pop {DUR}s ease-out both, flash {DUR+0.15}s ease-out both; }}@keyframes pop {{ 0%{{opacity:0;transform:scale(.2)}} 60%{{opacity:1;transform:scale(1.1)}} 100%{{opacity:1;transform:scale(1)}} }}@keyframes flash {{ 0%{{filter:brightness(2.4)}} 45%{{filter:brightness(2.4)}} 100%{{filter:brightness(1)}} }}@media (prefers-reduced-motion: reduce) {{ .c {{ opacity:1 !important; animation:none !important; }} }}</style><rect width="{W}" height="{H}" fill="none"/>{''.join(labels)}{''.join(rects)}<text class="total" x="{LEFT}" y="{H-6}">{total:,} contributions in the last year</text></svg>'''
+open(OUT, "w").write(svg)
+print(f"Wrote {OUT}: {n} days, {total:,} contributions, {len(svg)//1024} KB")
