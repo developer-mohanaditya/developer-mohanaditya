@@ -1,8 +1,8 @@
-"""Convert a portrait photo into terminal ASCII-art SVG, types itself then holds. Monochrome single-color style. Default input: source-photo.jpg (repo root)."""
+#!/usr/bin/env python3
+"""Portrait to ASCII SVG - preserves aspect (3:4)."""
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
-import html
-import os
-import sys
+from PIL.ImageOps import exif_transpose
+import html, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "mohan-ascii.svg")
@@ -10,31 +10,36 @@ COLS = int(os.environ.get("COLS", 180))
 ART_W_TARGET = 800
 CELL_W = ART_W_TARGET / COLS
 CELL_H = CELL_W * 15 / 8
-ROWS = round(COLS * 8 / 15)
 RAMP = " .`:-=+*cs#%@"
-CONTRAST = 1.05
-BRIGHTNESS = 1.0
-GAMMA = 1.18
-SHARPEN = False
-WHITE_FLOOR = 0.80
+CONTRAST = float(os.environ.get("CONTRAST", 1.05))
+BRIGHTNESS = float(os.environ.get("BRIGHTNESS", 1.0))
+GAMMA = float(os.environ.get("GAMMA", 1.18))
+WHITE_FLOOR = float(os.environ.get("WHITE_FLOOR", 0.80))
 PAD = 20
 TITLEBAR_H = 30
 STATUS_H = 30
-ART_W = COLS * CELL_W
-ART_H = ROWS * CELL_H
-CANVAS_W = ART_W + PAD * 2
-CANVAS_H = TITLEBAR_H + ART_H + STATUS_H + PAD
 BG = "#0d1117"
 BG2 = "#111722"
 FRAME = "#30363d"
 TITLE_TEXT = "#7d8590"
 INK = "#c9d1d9"
 CURSOR = "#c9d1d9"
+im = Image.open(SRC)
+try:
+    im = exif_transpose(im)
+except Exception:
+    pass
+im = im.convert("L")
+src_w, src_h = im.size
+src_aspect = src_h / max(1, src_w)
+ROWS = round(COLS * src_aspect * 8 / 15)
+ROWS = max(60, min(220, ROWS))
+ART_W = COLS * CELL_W
+ART_H = ROWS * CELL_H
+CANVAS_W = ART_W + PAD * 2
+CANVAS_H = TITLEBAR_H + ART_H + STATUS_H + PAD
 ROW_DUR = 5.8 / ROWS
 STAGGER = ROW_DUR
-im = Image.open(SRC).convert("L")
-if SHARPEN:
-    im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=140, threshold=2))
 im = ImageEnhance.Brightness(im).enhance(BRIGHTNESS)
 im = ImageEnhance.Contrast(im).enhance(CONTRAST)
 im = im.resize((COLS, ROWS), Image.LANCZOS)
@@ -85,4 +90,4 @@ parts.append(f'<rect x="{PAD + status_chars * 13 * 0.6:.1f}" y="{status_y-12:.1f
 parts.append("</svg>")
 svg = "".join(parts)
 open(OUT, "w").write(svg)
-print("wrote", OUT, len(svg), "bytes;", CANVAS_W, "x", CANVAS_H)
+print("wrote", OUT, len(svg), "bytes;", round(CANVAS_W), "x", round(CANVAS_H), f"({COLS}x{ROWS} chars, src {src_w}x{src_h})")
