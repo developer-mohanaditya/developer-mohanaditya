@@ -11,7 +11,8 @@
 <br>
 
 <!-- colored ascii portrait (left, animated gif) + streak/numbers card (right).
-     portrait is 3:4 (640x857, 60 frames). static fallback: ./ascii-art.png (same art, 3:4).
+     both panels are 3:4 (portrait 640x857, stats 840x1125) so equal
+     widths (420px) give equal heights. static fallback: ./ascii-art.png.
      stats: python scripts/render_stats_svg.py (same daily workflow) -->
 
 <h3><code>mohanaditya@github ~ $ whoami</code></h3>
