@@ -2,15 +2,15 @@
 """Prepare portrait for ASCII conversion (Pillow-only, no rembg needed).
 Preserves source aspect ratio (e.g. 3:4 portrait) -- no square crop.
 Usage: python scripts/prep_photo.py [input] [output].
-Default input: assets/source-photo.jpg.
-Default output: assets/source-prepped.png (gitignored, local preview only)."""
+Default input: source-photo.jpg (repo root).
+Default output: source-prepped.png (gitignored, local preview only)."""
 import os
 import sys
 from PIL import Image, ImageEnhance, ImageOps
 from PIL.ImageOps import exif_transpose
 HERE = os.path.dirname(os.path.abspath(__file__))
-INP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "source-photo.jpg")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "source-prepped.png")
+INP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "source-prepped.png")
 im = Image.open(INP)
 try:
     im = exif_transpose(im)
