@@ -10,13 +10,15 @@
 <br>
 <br>
 
-<!-- ascii portrait (left) + streak/numbers card (right). portrait is 3:4 aspect-preserved, stats is 840x880. -->
+<!-- colored ascii portrait (left, animated gif) + streak/numbers card (right).
+     portrait is 3:4 (640x857, 60 frames). static fallback: ./ascii-art.png (same art, 3:4).
+     stats: python scripts/render_stats_svg.py (same daily workflow) -->
 
 <h3><code>mohanaditya@github ~ $ whoami</code></h3>
 
 <table>
 <tr>
-<td valign="top"><img src="./mohan-ascii.svg" width="420" alt="Mohan Aditya -- ASCII portrait" /></td>
+<td valign="top"><img src="./ascii-art.gif" width="420" alt="Mohan Aditya -- colored ASCII portrait" /></td>
 <td valign="top"><img src="./stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats -- auto-refreshed daily" /></td>
 </tr>
 </table>
