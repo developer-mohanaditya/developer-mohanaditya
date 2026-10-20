@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 140" width="640" height="140">
+<rect x="0" y="10" width="120" height="60" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="10" y="32" font-size="11" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Contributions</text>
+<text x="10" y="54" font-size="18" fill="#0e4429" font-family="Helvetica, Arial, sans-serif">0</text>
+<rect x="130" y="10" width="120" height="60" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="140" y="32" font-size="11" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Active Days</text>
+<text x="140" y="54" font-size="18" fill="#0e4429" font-family="Helvetica, Arial, sans-serif">0</text>
+<rect x="260" y="10" width="120" height="60" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="270" y="32" font-size="11" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Current Streak</text>
+<text x="270" y="54" font-size="18" fill="#0e4429" font-family="Helvetica, Arial, sans-serif">0 days</text>
+<rect x="390" y="10" width="120" height="60" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="400" y="32" font-size="11" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Longest Streak</text>
+<text x="400" y="54" font-size="18" fill="#0e4429" font-family="Helvetica, Arial, sans-serif">0 days</text>
+<rect x="520" y="10" width="120" height="60" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="530" y="32" font-size="11" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Best Day</text>
+<text x="530" y="54" font-size="18" fill="#0e4429" font-family="Helvetica, Arial, sans-serif">0</text>
+<text x="10" y="128" font-size="10" fill="#656d76" font-family="Helvetica, Arial, sans-serif">Last updated: 2026-10-20</text>
+</svg>
