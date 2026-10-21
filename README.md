@@ -14,7 +14,7 @@
 
 <table>
 <tr>
-<td valign="top"><img src="./asci-art.png" width="420" alt="Mohan Aditya — ASCII portrait" /></td>
+<td valign="top"><img src="./ascii-art.png" width="420" alt="Mohan Aditya — ASCII portrait" /></td>
 <td valign="top"><img src="./stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
 </tr>
 </table>
