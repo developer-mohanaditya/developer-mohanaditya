@@ -118,7 +118,7 @@ def build_data(days):
         monthly[key] = monthly.get(key, 0) + d["count"]
     monthly_list = [{"month": k, "total": v} for k, v in sorted(monthly.items())]
     repos = fetch_repos()
-    return {"username": USERNAME, "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "range": {"start": days[0]["date"], "end": days[-1]["date"]}, "total_contributions": total, "active_days": active_days, "avg_per_active_day": round(total / active_days, 1) if active_days else 0, "repos": repos, "current_streak": {"length": cur_len, "start": cur_start, "end": cur_end}, "longest_streak": {"length": long_len, "start": long_start, "end": long_end}, "best_day": {"date": best["date"], "count": best["count"]}, "monthly": monthly_list, "days": days}
+    return {"username": USERNAME, "generated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "range": {"start": days[0]["date"], "end": days[-1]["date"]}, "total_contributions": total, "active_days": active_days, "avg_per_active_day": round(total / active_days, 1) if active_days else 0, "repos": repos, "current_streak": {"length": cur_len, "start": cur_start, "end": cur_end}, "longest_streak": {"length": long_len, "start": long_start, "end": long_end}, "best_day": {"date": best["date"], "count": best["count"]}, "monthly": monthly_list, "days": days}
 
 if __name__ == "__main__":
     days = fetch_days()
