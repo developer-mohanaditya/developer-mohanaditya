@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Convert a portrait photo into terminal ASCII-art SVG, types itself then holds.
 Monochrome single-color style. Preserves source aspect ratio (e.g. 3:4 portrait)
-instead of squashing to a square. Default input: source-photo.jpg (repo root)."""
+instead of squashing to a square. Default input: assets/source-photo.jpg."""
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 from PIL.ImageOps import exif_transpose
 import html
 import os
 import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "source-photo.jpg")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "mohan-ascii.svg")
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "assets", "source-photo.jpg")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "mohan-ascii.svg")
 COLS = int(os.environ.get("COLS", 180))
 ART_W_TARGET = 800
 CELL_W = ART_W_TARGET / COLS

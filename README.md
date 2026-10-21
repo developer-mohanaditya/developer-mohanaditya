@@ -14,8 +14,8 @@
 
 <table>
 <tr>
-<td valign="top"><img src="./ascii-art.png" width="420" alt="Mohan Aditya — ASCII portrait" /></td>
-<td valign="top"><img src="./stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
+<td valign="top"><img src="./assets/ascii-art.gif" width="420" alt="Mohan Aditya — colored ASCII portrait" /></td>
+<td valign="top"><img src="./assets/stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
 </tr>
 </table>
 
@@ -26,10 +26,10 @@
 
 <p><b>Fullstack Developer · AI Builder</b></p>
 
-[![GitHub](https://img.shields.io/badge/GitHub-developer--mohanaditya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/developer-mohanaditya)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-mohan--aditya--sadhanala-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohan-aditya-sadhanala)
-[![X](https://img.shields.io/badge/X-@smohanaditya-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/smohanaditya)
-[![Live Terminal](https://img.shields.io/badge/Live_Terminal-developer--mohanaditya.github.io-22d3ee?style=for-the-badge&logo=gnometerminal&logoColor=black)](https://developer-mohanaditya.github.io)
+[![GitHub](./assets/buttons/badge-github.svg)](https://github.com/developer-mohanaditya)
+[![LinkedIn](./assets/buttons/badge-linkedin.svg)](https://linkedin.com/in/mohan-aditya-sadhanala)
+[![X](./assets/buttons/badge-x.svg)](https://x.com/smohanaditya)
+[![Live Terminal](./assets/buttons/badge-terminal.svg)](https://developer-mohanaditya.github.io)
 
 <br>
 

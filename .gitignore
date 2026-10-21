@@ -4,3 +4,4 @@ __pycache__/
 source-prepped.png
 models/*.caffemodel
 models/*.prototxt
+.DS_Store
