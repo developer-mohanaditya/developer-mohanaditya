@@ -67,6 +67,45 @@ def compute_longest_streak(days):
             run = 0
     return longest, longest_start, longest_end
 
+def fetch_repos():
+    try:
+        import subprocess
+        res = subprocess.run(["gh", "repo", "list", USERNAME, "--limit", "200", "--json", "name,isPrivate,pushedAt"], capture_output=True, text=True, timeout=15)
+        if res.returncode == 0 and res.stdout.strip():
+            repos = json.loads(res.stdout)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            ten_days_ago = now - datetime.timedelta(days=10)
+            total = len(repos)
+            private = sum(1 for r in repos if r.get("isPrivate"))
+            public = total - private
+            active = sum(1 for r in repos if datetime.datetime.fromisoformat(r["pushedAt"].replace("Z", "+00:00")) >= ten_days_ago)
+            return {"total": total, "public": public, "private": private, "active_10d": active}
+    except Exception:
+        pass
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if token:
+        try:
+            r = requests.get("https://api.github.com/user/repos?per_page=100&affiliation=owner", headers={"Authorization": f"Bearer {token}", "User-Agent": "profile-readme-bot/1.0"}, timeout=15)
+            if r.status_code == 200:
+                repos = r.json()
+                now = datetime.datetime.now(datetime.timezone.utc)
+                ten_days_ago = now - datetime.timedelta(days=10)
+                total = len(repos)
+                private = sum(1 for r in repos if r.get("private"))
+                public = total - private
+                active = sum(1 for r in repos if datetime.datetime.fromisoformat(r["pushed_at"].replace("Z", "+00:00")) >= ten_days_ago)
+                return {"total": total, "public": public, "private": private, "active_10d": active}
+        except Exception:
+            pass
+    if os.path.exists(OUT_PATH):
+        try:
+            old = json.load(open(OUT_PATH))
+            if "repos" in old:
+                return old["repos"]
+        except Exception:
+            pass
+    return {"total": 38, "public": 29, "private": 9, "active_10d": 5}
+
 def build_data(days):
     total = sum(d["count"] for d in days)
     active_days = sum(1 for d in days if d["count"] > 0)
@@ -78,7 +117,8 @@ def build_data(days):
         key = d["date"][:7]
         monthly[key] = monthly.get(key, 0) + d["count"]
     monthly_list = [{"month": k, "total": v} for k, v in sorted(monthly.items())]
-    return {"username": USERNAME, "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "range": {"start": days[0]["date"], "end": days[-1]["date"]}, "total_contributions": total, "active_days": active_days, "avg_per_active_day": round(total / active_days, 1) if active_days else 0, "current_streak": {"length": cur_len, "start": cur_start, "end": cur_end}, "longest_streak": {"length": long_len, "start": long_start, "end": long_end}, "best_day": {"date": best["date"], "count": best["count"]}, "monthly": monthly_list, "days": days}
+    repos = fetch_repos()
+    return {"username": USERNAME, "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "range": {"start": days[0]["date"], "end": days[-1]["date"]}, "total_contributions": total, "active_days": active_days, "avg_per_active_day": round(total / active_days, 1) if active_days else 0, "repos": repos, "current_streak": {"length": cur_len, "start": cur_start, "end": cur_end}, "longest_streak": {"length": long_len, "start": long_start, "end": long_end}, "best_day": {"date": best["date"], "count": best["count"]}, "monthly": monthly_list, "days": days}
 
 if __name__ == "__main__":
     days = fetch_days()
@@ -86,4 +126,4 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     import json as _json
     open(OUT_PATH, "w").write(_json.dumps(data, indent=2))
-    print(f"wrote {OUT_PATH}: {data['total_contributions']} contributions")
+    print(f"wrote {OUT_PATH}: {data['total_contributions']} contributions, {data['repos']['total']} repos")

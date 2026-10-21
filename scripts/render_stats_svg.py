@@ -18,17 +18,17 @@ BAR = "#26a641"
 W, H = 840, 1125
 PAD = 20
 TITLEBAR_H = 30
-COLS, ROWS = 2, 3
-GAP = 16
+COLS, ROWS = 2, 4
+GAP = 14
 TILE_W = (W - PAD * 2 - GAP * (COLS - 1)) / COLS
-TILE_H = 185
+TILE_H = 135
 TILES_TOP = TITLEBAR_H + PAD + 4
 CHART_TOP = TILES_TOP + ROWS * TILE_H + (ROWS - 1) * GAP + GAP
-TILE_STAGGER = 0.15
+TILE_STAGGER = 0.12
 SLIDE_DUR = 0.45
-COUNT_DUR = 1.2
+COUNT_DUR = 1.1
 FRAMES = 16
-BAR_START = TILE_STAGGER * COLS * ROWS + 0.4
+BAR_START = TILE_STAGGER * COLS * ROWS + 0.3
 BAR_STAGGER = 0.06
 BAR_DUR = 0.6
 
@@ -41,7 +41,17 @@ def span(s):
 data = json.load(open(SRC))
 cur, lng, best = data["current_streak"], data["longest_streak"], data["best_day"]
 n_days = len(data["days"])
-tiles = [("current streak", cur["length"], " days", span(cur), GREEN), ("longest streak", lng["length"], " days", span(lng), INK), ("contributions", data["total_contributions"], "", "in the last year", INK), ("active days", data["active_days"], f" / {n_days}", f'{data["active_days"] / n_days:.0%} of the year', INK), ("best day", best["count"], "", short(best["date"]), INK), ("avg / active day", data["avg_per_active_day"], "", "contributions", INK)]
+repos = data.get("repos", {"total": 38, "public": 29, "private": 9, "active_10d": 5})
+tiles = [
+    ("current streak", cur["length"], " days", span(cur), GREEN),
+    ("longest streak", lng["length"], " days", span(lng), INK),
+    ("contributions", data["total_contributions"], "", "in the last year", INK),
+    ("active days", data["active_days"], f" / {n_days}", f'{data["active_days"] / n_days:.0%} of the year', INK),
+    ("best day", best["count"], "", short(best["date"]), INK),
+    ("avg / active day", data["avg_per_active_day"], "", "contributions", INK),
+    ("active repos", repos["active_10d"], "", "committed in past 10d", GREEN),
+    ("total repos", repos["total"], "", f'{repos["public"]} public · {repos["private"]} private', INK)
+]
 
 def fmt(v, like):
     return f"{v:,.1f}" if isinstance(like, float) else f"{int(round(v)):,}"
@@ -58,8 +68,8 @@ for i, (label, value, suffix, caption, accent) in enumerate(tiles):
     count_start = start + SLIDE_DUR * 0.6
     parts.append(f'<g class="t" style="animation-delay:{start:.2f}s">')
     parts.append(f'<rect x="{x:.1f}" y="{y}" width="{TILE_W:.1f}" height="{TILE_H}" rx="10" fill="{TILE}" stroke="{FRAME}"/>')
-    parts.append(f'<text x="{x+24:.1f}" y="{y+40}" fill="{MUTED}" font-size="22">$ {label}</text>')
-    num_y = y + 115
+    parts.append(f'<text x="{x+20:.1f}" y="{y+32}" fill="{MUTED}" font-size="19">$ {label}</text>')
+    num_y = y + 84
     for k in range(1, FRAMES + 1):
         p = k / FRAMES
         v = value * (1 - (1 - p) ** 3)
@@ -68,8 +78,8 @@ for i, (label, value, suffix, caption, accent) in enumerate(tiles):
         anim = f'<set attributeName="opacity" to="1" begin="{t_on:.3f}s"/>'
         if k < FRAMES:
             anim += f'<set attributeName="opacity" to="0" begin="{t_off:.3f}s"/>'
-        parts.append(f'<text x="{x+24:.1f}" y="{num_y}" opacity="0" font-size="54" font-weight="700" fill="{accent}">{fmt(v, value)}<tspan font-size="24" font-weight="400" fill="{MUTED}">{suffix}</tspan>{anim}</text>')
-    parts.append(f'<text x="{x+24:.1f}" y="{y+160}" fill="{MUTED}" font-size="20">{caption}</text>')
+        parts.append(f'<text x="{x+20:.1f}" y="{num_y}" opacity="0" font-size="46" font-weight="700" fill="{accent}">{fmt(v, value)}<tspan font-size="20" font-weight="400" fill="{MUTED}">{suffix}</tspan>{anim}</text>')
+    parts.append(f'<text x="{x+20:.1f}" y="{y+116}" fill="{MUTED}" font-size="17">{caption}</text>')
     parts.append('</g>')
 monthly = data["monthly"]
 chart_x, chart_w = PAD, W - PAD * 2

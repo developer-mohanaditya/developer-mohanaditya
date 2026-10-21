@@ -14,8 +14,8 @@
 
 <table>
 <tr>
-<td valign="top"><img src="./assets/ascii-art.gif" width="420" alt="Mohan Aditya — colored ASCII portrait" /></td>
-<td valign="top"><img src="./assets/stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
+<td width="50%" valign="top"><img src="./assets/ascii-art.gif" width="420" alt="Mohan Aditya — colored ASCII portrait" /></td>
+<td width="50%" valign="top"><img src="./assets/stats.svg" width="420" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
 </tr>
 </table>
 
