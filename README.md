@@ -12,10 +12,10 @@
 
 <h3><code>mohanaditya@github ~ $ whoami</code></h3>
 
-<table>
+<table width="100%">
 <tr>
-<td width="420" height="562" valign="top"><img src="./assets/ascii-art.gif" width="420" height="562" alt="Mohan Aditya — colored ASCII portrait" /></td>
-<td width="420" height="562" valign="top"><img src="./assets/stats.svg" width="420" height="562" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
+<td width="50%" valign="top"><img src="./assets/ascii-art.gif" width="100%" alt="Mohan Aditya — colored ASCII portrait" /></td>
+<td width="50%" valign="top"><img src="./assets/stats.svg" width="100%" alt="Mohan's GitHub streak and contribution stats — auto-refreshed daily" /></td>
 </tr>
 </table>
 

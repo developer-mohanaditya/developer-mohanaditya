@@ -4,6 +4,8 @@ import datetime
 import json
 import os
 import sys
+from PIL import Image
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "data", "contributions.json")
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "..", "assets", "stats.svg")
@@ -15,15 +17,33 @@ MUTED = "#7d8590"
 INK = "#e6edf3"
 GREEN = "#39d353"
 BAR = "#26a641"
-W, H = 840, 1125
+
+# Dynamically calculate canvas height to match the companion portrait GIF aspect ratio
+gif_path = os.path.join(HERE, "..", "assets", "ascii-art.gif")
+if not os.path.exists(gif_path):
+    gif_path = os.path.join(HERE, "..", "assets", "ascii-art.png")
+if os.path.exists(gif_path):
+    try:
+        with Image.open(gif_path) as im:
+            gw, gh = im.size
+            aspect = gh / gw
+    except Exception:
+        aspect = 857 / 640
+else:
+    aspect = 857 / 640
+
+W = 840
+H = round(W * aspect)
 PAD = 20
 TITLEBAR_H = 30
 COLS, ROWS = 2, 4
 GAP = 14
 TILE_W = (W - PAD * 2 - GAP * (COLS - 1)) / COLS
-TILE_H = 135
+TILE_H = 138
 TILES_TOP = TITLEBAR_H + PAD + 4
-CHART_TOP = TILES_TOP + ROWS * TILE_H + (ROWS - 1) * GAP + GAP
+TILES_BOTTOM = TILES_TOP + ROWS * TILE_H + (ROWS - 1) * GAP
+CHART_TOP = TILES_BOTTOM + GAP
+CHART_H = H - PAD - CHART_TOP
 TILE_STAGGER = 0.12
 SLIDE_DUR = 0.45
 COUNT_DUR = 1.1
