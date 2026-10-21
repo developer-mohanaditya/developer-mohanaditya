@@ -24,7 +24,12 @@
 
 <h3><code>mohanaditya@github ~ $ ./links.sh</code></h3>
 
-<p><b>Fullstack Developer · AI Builder</b></p>
+<p><b>Student-Founder · AI Builder · Entrepreneur 🇮🇳</b></p>
+
+
+<p><b>Founder @ <a href="https://profeshare.ai">Profeshare AI</a> & <a href="https://clearroute.profeshare.ai">ClearRoute</a>  </b></p>
+
+<p><b>Also building <a href="https://freebuff-focus.vercel.app">Freebuff-Focus</a>, <a href="">Remarkable AI</a>, <a href="">Tiny Lotus</a>  </b></p>
 
 [![GitHub](./assets/buttons/badge-github.svg)](https://github.com/developer-mohanaditya)
 [![LinkedIn](./assets/buttons/badge-linkedin.svg)](https://linkedin.com/in/mohan-aditya-sadhanala)
